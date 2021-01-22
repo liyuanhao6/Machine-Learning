@@ -41,8 +41,11 @@ def main():
         print('-------------------------------------')
         print(f'learning_rate: {learning_rate}')
         # 可自行设置模型参数，如正则化，梯度下降轮数学习率等
-        model = MyLinearRegression(num_iterations=num_iterations, learning_rate=learning_rate, if_standard=True,
-                                   regularization=regularization, gradient=True)
+        model = MyLinearRegression(num_iterations=num_iterations,
+                                   learning_rate=learning_rate,
+                                   if_standard=True,
+                                   regularization=regularization,
+                                   gradient=True)
         model.fit(x_train, y_train)
         print('开始时的损失：', model.training_errors[0])
         print('训练后的损失：', model.training_errors[num_iterations - 1])
@@ -77,8 +80,10 @@ def main():
     model = LinearRegression()
     model.fit(x_train, y_train)
     y_predictions = model.predict(x_test)
+
     mse = mean_squared_error(y_test, y_predictions)
     print("Sklearn's mean squared error: %s" % (mse))
+
     plt.scatter(x_train, y_train, label='Train data', c="r", alpha=0.5)
     plt.scatter(x_test, y_test, label='Test data', c="b", alpha=0.5)
     plt.scatter(x_test, y_predictions, label='Prediction', c='k', alpha=0.5)
