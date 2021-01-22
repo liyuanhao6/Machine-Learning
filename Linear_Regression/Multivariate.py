@@ -1,11 +1,13 @@
+import numpy as np
 import matplotlib.pyplot as plt
-from MultivariateLinearRegression import MultivariateLinearRegression
+from LinearRegression import MyLinearRegression
+from LinearRegression import l1_regularization, l2_regularization
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-import plotly
-import plotly.graph_objs as go
+# import plotly
+# import plotly.graph_objs as go
 
 
 def main():
@@ -88,33 +90,37 @@ def main():
     # plot_figure = go.Figure(data=plot_data, layout=plot_layout)
     # plotly.offline.plot(plot_figure)
 
-    num_iterations = 200
-    learning_rate_list = [1e-2, 3 * 1e-3, 1e-3, 3 * 1e-4, 1e-4]
-    cost_list = []
+    num_iterations = 2000
+    regularization = l2_regularization(alpha=0.5)
+    learning_rate_list = [3 * 1e-3, 1e-3, 3 * 1e-4, 1e-4, 3 * 1e-5, 1e-5]
+    error_list = []
     for learning_rate in learning_rate_list:
         print('-------------------------------------')
         print(f'learning_rate: {learning_rate}')
-        LR = MultivariateLinearRegression(data=x_train,
-                                          labels=y_train,
-                                          alpha=learning_rate,
-                                          num_iterations=num_iterations)
-        (theta, cost_history) = LR.train()
-        print('开始时的损失：', cost_history[0])
-        print('训练后的损失：', cost_history[-1])
+        # 可自行设置模型参数，如正则化，梯度下降轮数学习率等
+        model = MyLinearRegression(num_iterations=num_iterations, learning_rate=learning_rate, regularization=regularization,
+                                   gradient=True)
+        model.fit(x_train, y_train)
+        print('开始时的损失：', model.training_errors[0])
+        print('训练后的损失：', model.training_errors[num_iterations-1])
         print('-------------------------------------')
-        cost_list.append(cost_history)
+        error_list.append(model.training_errors)
 
-    for cost, learning_rate in zip(cost_list, learning_rate_list):
+    for error, learning_rate in zip(error_list, learning_rate_list):
         plt.plot(range(num_iterations),
-                 cost,
+                 error,
                  label=f'learning rate: {learning_rate}')
-    plt.xlabel('Iter')
-    plt.ylabel('Cost')
+    plt.title('Different learning rate')
+    plt.ylabel('Mean Squared Error')
+    plt.xlabel('Iterations')
     plt.legend()
     plt.show()
 
-    y_predictions = LR.predict(data=x_test, labels=y_test, theta=theta)
-    print(f'自己模型训练后的损失: {mean_squared_error(y_test, y_predictions)}')
+    y_pred = model.predict(x_test)
+    y_pred = np.reshape(y_pred, y_test.shape)
+
+    mse = mean_squared_error(y_test, y_pred)
+    print("My mean squared error: %s" % (mse))
     ax = plt.axes(projection='3d')
     ax.scatter3D(x_train[:, 0],
                  x_train[:, 1],
@@ -130,7 +136,7 @@ def main():
                  alpha=0.5)
     ax.scatter3D(x_test[:, 0],
                  x_test[:, 1],
-                 y_predictions,
+                 y_pred,
                  label='Prediction',
                  c='k',
                  alpha=0.5)
@@ -141,12 +147,12 @@ def main():
     plt.show()
 
     plt.scatter(x_test[:, 0],
-                y_predictions,
+                y_pred,
                 label='Size_house-Price',
                 c='k',
                 alpha=0.5)
     plt.scatter(x_test[:, 1],
-                y_predictions,
+                y_pred,
                 label='Num_bedroom-Price',
                 c='g',
                 alpha=0.5)
@@ -158,7 +164,8 @@ def main():
     model = LinearRegression()
     model.fit(x_train, y_train)
     y_predictions = model.predict(x_test)
-    print(f'Sklearn模型训练后的损失: {mean_squared_error(y_test, y_predictions)}')
+    mse = mean_squared_error(y_test, y_predictions)
+    print("Sklearn's mean squared error: %s" % (mse))
     ax = plt.axes(projection='3d')
     ax.scatter3D(x_train[:, 0],
                  x_train[:, 1],
