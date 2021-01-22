@@ -51,10 +51,11 @@ class MyLinearRegression:
         若使用了正则化，暂只支持梯度下降
     """
 
-    def __init__(self, num_iterations=1000, learning_rate=1e-2, regularization=None, gradient=True):
+    def __init__(self, num_iterations=1000, learning_rate=1e-2, if_standard=True, regularization=None, gradient=True):
         self.num_iterations = num_iterations
         self.learning_rate = learning_rate
         self.gradient = gradient
+        self.if_standard = if_standard
         if regularization is None:
             self.regularization = lambda x: 0
             self.regularization.grad = lambda x: 0
@@ -73,6 +74,8 @@ class MyLinearRegression:
     def fit(self, x, y):
         m_samples, n_features = x.shape
         self.initialize_weights(n_features)
+        if self.if_standard:
+            x = (x - np.mean(x, axis=0)) / np.std(x, axis=0)
         x = np.insert(x, 0, 1, axis=1)
         y = np.reshape(y, (m_samples, 1))
         self.training_errors = []
@@ -95,6 +98,8 @@ class MyLinearRegression:
             self.w = x_T_x_I_x_T_x_T_y
 
     def predict(self, x):
+        if self.if_standard:
+            x = (x - np.mean(x, axis=0)) / np.std(x, axis=0)
         x = np.insert(x, 0, 1, axis=1)
         y_pred = x.dot(self.w)
         return y_pred

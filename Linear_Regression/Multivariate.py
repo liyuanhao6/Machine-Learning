@@ -6,15 +6,17 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+
+
 # import plotly
 # import plotly.graph_objs as go
 
 
 def main():
-    x, y = datasets.make_regression(n_samples=500,
+    x, y = datasets.make_regression(n_samples=1000,
                                     n_features=2,
                                     n_targets=1,
-                                    noise=15)
+                                    noise=50)
     x_train, x_test, y_train, y_test = train_test_split(x,
                                                         y,
                                                         test_size=0.2,
@@ -90,19 +92,19 @@ def main():
     # plot_figure = go.Figure(data=plot_data, layout=plot_layout)
     # plotly.offline.plot(plot_figure)
 
-    num_iterations = 2000
+    num_iterations = 1000
     regularization = l2_regularization(alpha=0.5)
-    learning_rate_list = [3 * 1e-3, 1e-3, 3 * 1e-4, 1e-4, 3 * 1e-5, 1e-5]
+    learning_rate_list = [1e-3, 3 * 1e-4, 1e-4, 3 * 1e-5, 1e-5]
     error_list = []
     for learning_rate in learning_rate_list:
         print('-------------------------------------')
         print(f'learning_rate: {learning_rate}')
         # 可自行设置模型参数，如正则化，梯度下降轮数学习率等
-        model = MyLinearRegression(num_iterations=num_iterations, learning_rate=learning_rate, regularization=regularization,
-                                   gradient=True)
+        model = MyLinearRegression(num_iterations=num_iterations, learning_rate=learning_rate, if_standard=True,
+                                   regularization=regularization, gradient=True)
         model.fit(x_train, y_train)
         print('开始时的损失：', model.training_errors[0])
-        print('训练后的损失：', model.training_errors[num_iterations-1])
+        print('训练后的损失：', model.training_errors[num_iterations - 1])
         print('-------------------------------------')
         error_list.append(model.training_errors)
 
